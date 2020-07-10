@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Patch, Param, Delete, UnauthorizedException, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Delete, UnauthorizedException, Request, UseGuards, SetMetadata } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './users.entity';
 import { AuthService } from '../auth/auth.service';
-import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-
+import { RolesGuard } from '../auth/roles.guard'
+import { Roles } from 'src/roles/roles.decorator';
+@UseGuards(RolesGuard)
 @Controller('users')
 export class UsersController {
     constructor(
@@ -17,12 +18,12 @@ export class UsersController {
     @Post('login')
     async login() {
         let user = await this.authService.validateUser('chuvanvu', 'chuvanvu');
-        if(user) {
+        if (user) {
             return this.authService.login(user);
         } else {
             throw new UnauthorizedException('haha 1', 'haha 2');
         }
-        
+
     }
 
     @UseGuards(JwtAuthGuard)
@@ -32,7 +33,7 @@ export class UsersController {
     }
 
     @Get()
-    getAll():Promise<User[]> {
+    getAll(): Promise<User[]> {
         return this.usersService.findAll();
     }
 
@@ -40,24 +41,28 @@ export class UsersController {
     create(): Promise<User> {
 
         return this.usersService.create({
-            username: 'chuvanvu',
-            password: 'chuvanvu',
-            isActive: true,
-            fullname: 'chu van vu'
+            username: 'chuvanvu1',
+            password: 'chuvanvu1',
+            // isActive: true,
+            fullname: 'chu van v1'
         })
     }
 
     @Patch(':id')
-    async update(@Param() id: string): Promise<void> {
+    @Roles('admin')
+    async update(@Param() id: string): Promise<any> {
         console.log(id);
-        
-        await this.usersService.update(id, {fullname: 'Chu Vụ'})
+
+        let result = await this.usersService.update(id, { fullname: 'Chu Vụ' });
+        console.log(result);
+        return result;
+
     }
-    
+
     @Delete(':id')
     async destroy(@Param() id: string): Promise<void> {
         console.log(id);
-        
+
         return await this.usersService.remove(id);
     }
 

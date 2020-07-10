@@ -7,6 +7,7 @@ import { User } from './users/users.entity';
 import { UsersModule } from './users/users.module';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
+import { RolesController } from './roles/roles.controller';
 @Module({
   imports: [TypeOrmModule.forRoot({
     type: 'mongodb',
@@ -14,9 +15,9 @@ import { AuthModule } from './auth/auth.module';
     useUnifiedTopology: true,
     url: 'mongodb://127.0.0.1:27017/nestjs_jwt',
     synchronize: true,
-    entities: [User]
+    entities: [User],
   }), UsersModule, AuthModule],
-  controllers: [AppController, UsersController],
+  controllers: [AppController, UsersController, RolesController],
   providers: [AppService],
 })
 export class AppModule {
